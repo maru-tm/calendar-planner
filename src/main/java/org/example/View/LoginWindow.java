@@ -1,10 +1,19 @@
 package org.example.View;
 
+import org.example.View.loginModel;
+
 import javax.swing.*;
 import java.awt.*;
 
-public class LoginWindow extends JFrame {
+public class LoginWindow extends JFrame implements loginModel.LoginObserver {
+    private JTextField loginField;
+    private JPasswordField passwordField;
+    private loginModel loginModel;
+
     public LoginWindow() {
+        loginModel = new loginModel();
+        loginModel.addObserver(this); // Подписываем окно на события из LoginModel
+
         setTitle("Login");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(400, 300);
@@ -26,7 +35,7 @@ public class LoginWindow extends JFrame {
         gbc.gridwidth = 1;
         add(loginLabel, gbc);
 
-        JTextField loginField = new JTextField(15);
+        loginField = new JTextField(15);
         gbc.gridx = 1;
         gbc.gridy = 1;
         add(loginField, gbc);
@@ -36,7 +45,7 @@ public class LoginWindow extends JFrame {
         gbc.gridy = 2;
         add(passwordLabel, gbc);
 
-        JPasswordField passwordField = new JPasswordField(15);
+        passwordField = new JPasswordField(15);
         gbc.gridx = 1;
         gbc.gridy = 2;
         add(passwordField, gbc);
@@ -46,14 +55,27 @@ public class LoginWindow extends JFrame {
         gbc.gridy = 3;
         gbc.gridwidth = 2;
 
+        // Обработка события нажатия кнопки "Войти"
         loginButton.addActionListener(e -> {
-            // Открыть главную страницу и закрыть окно логина
-            new SecondWindow().setVisible(true);
-            dispose(); // Закрыть окно логина
+            String login = loginField.getText();
+            String password = new String(passwordField.getPassword());
+            loginModel.authenticate(login, password); // Проверяем логин и пароль через модель
         });
         add(loginButton, gbc);
 
         setLocationRelativeTo(null);
         setVisible(true);
+    }
+
+    // Реализация метода интерфейса LoginObserver
+    @Override
+    public void onLoginResult(boolean success) {
+        if (success) {
+            JOptionPane.showMessageDialog(this, "Успешный вход!");
+            new SecondWindow().setVisible(true); // Открываем SecondWindow
+            dispose(); // Закрываем окно логина
+        } else {
+            JOptionPane.showMessageDialog(this, "Неверный логин или пароль. Попробуйте снова.");
+        }
     }
 }
