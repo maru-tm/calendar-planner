@@ -114,7 +114,8 @@ public class SecondWindow extends JFrame {
         JTextArea taskArea = new JTextArea(10, 20);
         JButton addTaskButton = new JButton("Добавить задачу");
 
-        taskPanel.add(dayLabel, BorderLayout.NORTH);
+        taskPanel
+                .add(dayLabel, BorderLayout.NORTH);
         taskPanel.add(new JScrollPane(taskArea), BorderLayout.CENTER);
         taskPanel.add(addTaskButton, BorderLayout.SOUTH);
 
