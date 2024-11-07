@@ -4,10 +4,11 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Map;
 
 public class SecondWindow extends JFrame {
 
@@ -19,6 +20,9 @@ public class SecondWindow extends JFrame {
 
     private int currentYear;
     private int currentMonth;
+
+    // Хранение задач для каждого дня
+    private Map<Integer, StringBuilder> tasks = new HashMap<>();
 
     public SecondWindow() {
         setTitle("Календарь");
@@ -112,22 +116,27 @@ public class SecondWindow extends JFrame {
 
         JLabel dayLabel = new JLabel("Задачи на " + day + "-е число:");
         JTextArea taskArea = new JTextArea(10, 20);
-        JButton addTaskButton = new JButton("Добавить задачу");
+        taskArea.setEditable(false);
 
-        taskPanel
-                .add(dayLabel, BorderLayout.NORTH);
+        // Отображаем уже сохраненные задачи для выбранного дня
+        taskArea.setText(tasks.getOrDefault(day, new StringBuilder()).toString());
+
+        JButton addTaskButton = new JButton("Добавить задачу");
+        addTaskButton.addActionListener(e -> {
+            String task = JOptionPane.showInputDialog("Введите задачу:");
+            if (task != null && !task.isEmpty()) {
+                // Сохраняем задачу для выбранного дня
+                tasks.computeIfAbsent(day, k -> new StringBuilder()).append(task).append("\n");
+                taskArea.setText(tasks.get(day).toString());
+            }
+        });
+
+        taskPanel.add(dayLabel, BorderLayout.NORTH);
         taskPanel.add(new JScrollPane(taskArea), BorderLayout.CENTER);
         taskPanel.add(addTaskButton, BorderLayout.SOUTH);
 
         taskPanel.revalidate();
         taskPanel.repaint();
-
-        addTaskButton.addActionListener(e -> {
-            String task = JOptionPane.showInputDialog("Введите задачу:");
-            if (task != null && !task.isEmpty()) {
-                taskArea.append(task + "\n");
-            }
-        });
     }
 
     private class DayButtonListener implements ActionListener {
