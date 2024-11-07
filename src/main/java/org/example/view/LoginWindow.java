@@ -1,5 +1,7 @@
 package org.example.view;
 
+import org.example.notifications.*;
+
 import javax.swing.*;
 import java.awt.*;
 
@@ -48,7 +50,8 @@ public class LoginWindow extends JFrame {
 
         loginButton.addActionListener(e -> {
             // Открыть главную страницу и закрыть окно логина
-            new SecondWindow().setVisible(true);
+            SecondWindow window = new SecondWindow();
+            window.setVisible(true);
             dispose(); // Закрыть окно логина
         });
         add(loginButton, gbc);

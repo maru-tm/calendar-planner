@@ -1,8 +1,8 @@
 package org.example.notifications;
 
-public class OverdueNotification implements Notification{
+public abstract class OverdueNotification implements Notification {
     @Override
-    public void notifyUser(){
-        System.out.println("Уведомление: просроченная задача!");
+    public void showNotification() {
+        System.out.println("Показать просроченные задачи: [Список просроченных задач]");
     }
 }

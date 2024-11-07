@@ -1,8 +1,8 @@
 package org.example.notifications;
 
-public class UpcomingNotification implements Notification{
+public abstract class UpcomingNotification implements Notification {
     @Override
-    public void notifyUser(){
-        System.out.println("Уведомление: предстоящая задача!");
+    public void showNotification() {
+        System.out.println("Показать предстоящие задачи: [Список предстоящих задач]");
     }
 }

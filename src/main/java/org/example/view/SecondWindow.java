@@ -4,10 +4,14 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.YearMonth;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import org.example.tasks.*;
 
 public class SecondWindow extends JFrame {
 
@@ -20,6 +24,9 @@ public class SecondWindow extends JFrame {
     private int currentYear;
     private int currentMonth;
 
+    // Map to store tasks by date
+    private Map<LocalDate, List<Task>> tasksMap = new HashMap<>();
+
     public SecondWindow() {
         setTitle("Календарь");
         setSize(800, 600);
@@ -30,11 +37,8 @@ public class SecondWindow extends JFrame {
         currentYear = Calendar.getInstance().get(Calendar.YEAR);
         currentMonth = Calendar.getInstance().get(Calendar.MONTH) + 1;
 
-        // Панель для выбора месяца и года
-        JPanel topPanel = new JPanel();
-        topPanel.setLayout(new FlowLayout());
+        JPanel topPanel = new JPanel(new FlowLayout());
 
-        // Месяцы
         String[] months = {"Январь", "Февраль", "Март", "Апрель", "Май", "Июнь",
                 "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"};
         monthComboBox = new JComboBox<>(months);
@@ -42,7 +46,6 @@ public class SecondWindow extends JFrame {
         monthComboBox.addActionListener(e -> updateCalendar());
         topPanel.add(monthComboBox);
 
-        // Год
         yearComboBox = new JComboBox<>();
         for (int i = currentYear - 5; i <= currentYear + 5; i++) {
             yearComboBox.addItem(i);
@@ -53,28 +56,21 @@ public class SecondWindow extends JFrame {
 
         add(topPanel, BorderLayout.NORTH);
 
-        // Панель для дней недели и дней месяца
-        calendarPanel = new JPanel();
-        calendarPanel.setLayout(new BorderLayout());
-
-        daysPanel = new JPanel();
-        daysPanel.setLayout(new GridLayout(0, 7));
+        calendarPanel = new JPanel(new BorderLayout());
+        daysPanel = new JPanel(new GridLayout(0, 7));
         calendarPanel.add(daysPanel, BorderLayout.CENTER);
 
         add(calendarPanel, BorderLayout.CENTER);
 
-        // Панель для задач
-        taskPanel = new JPanel();
-        taskPanel.setLayout(new BorderLayout());
+        taskPanel = new JPanel(new BorderLayout());
         add(taskPanel, BorderLayout.EAST);
 
-        updateCalendar(); // Обновление календаря при загрузке окна
+        updateCalendar();
     }
 
     private void updateCalendar() {
         daysPanel.removeAll();
 
-        // Отображение дней недели
         String[] daysOfWeek = {"Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"};
         for (String day : daysOfWeek) {
             JLabel dayLabel = new JLabel(day, SwingConstants.CENTER);
@@ -82,7 +78,6 @@ public class SecondWindow extends JFrame {
             daysPanel.add(dayLabel);
         }
 
-        // Определение выбранного месяца и года
         int selectedYear = (int) yearComboBox.getSelectedItem();
         int selectedMonth = monthComboBox.getSelectedIndex() + 1;
 
@@ -91,12 +86,10 @@ public class SecondWindow extends JFrame {
         LocalDate firstDayOfMonth = yearMonth.atDay(1);
         int startDayOfWeek = firstDayOfMonth.getDayOfWeek().getValue();
 
-        // Добавление пустых ячеек для смещения дней начала месяца
         for (int i = 1; i < startDayOfWeek; i++) {
             daysPanel.add(new JLabel(""));
         }
 
-        // Отображение дней месяца
         for (int day = 1; day <= daysInMonth; day++) {
             JButton dayButton = new JButton(String.valueOf(day));
             dayButton.addActionListener(new DayButtonListener(day));
@@ -110,23 +103,94 @@ public class SecondWindow extends JFrame {
     private void initializeTaskPanel(int day) {
         taskPanel.removeAll();
 
+        LocalDate selectedDate = LocalDate.of((int) yearComboBox.getSelectedItem(), monthComboBox.getSelectedIndex() + 1, day);
+
         JLabel dayLabel = new JLabel("Задачи на " + day + "-е число:");
-        JTextArea taskArea = new JTextArea(10, 20);
+        JPanel taskListPanel = new JPanel();
+        taskListPanel.setLayout(new BoxLayout(taskListPanel, BoxLayout.Y_AXIS));
+
         JButton addTaskButton = new JButton("Добавить задачу");
+        JButton saveTaskButton = new JButton("Сохранить задачи");
+        JButton clearTasksButton = new JButton("Удалить все задачи");
+        JButton showUpcomingTasksButton = new JButton("Показать предстоящие задачи");
+        JButton showOverdueTasksButton = new JButton("Показать просроченные задачи");
+
+        List<Task> tasks = tasksMap.getOrDefault(selectedDate, new ArrayList<>());
+        Map<JCheckBox, Task> taskCheckboxMap = new HashMap<>();
+        for (Task task : tasks) {
+            JCheckBox taskCheckbox = new JCheckBox(task.getDescription());
+            taskCheckboxMap.put(taskCheckbox, task);
+            taskListPanel.add(taskCheckbox);
+        }
 
         taskPanel.add(dayLabel, BorderLayout.NORTH);
-        taskPanel.add(new JScrollPane(taskArea), BorderLayout.CENTER);
-        taskPanel.add(addTaskButton, BorderLayout.SOUTH);
+        taskPanel.add(new JScrollPane(taskListPanel), BorderLayout.CENTER);
+
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.Y_AXIS));
+        buttonPanel.add(addTaskButton);
+        buttonPanel.add(Box.createVerticalStrut(5));
+        buttonPanel.add(saveTaskButton);
+        buttonPanel.add(Box.createVerticalStrut(5));
+        buttonPanel.add(clearTasksButton);
+        buttonPanel.add(Box.createVerticalStrut(5));
+        buttonPanel.add(showUpcomingTasksButton);
+        buttonPanel.add(Box.createVerticalStrut(5));
+        buttonPanel.add(showOverdueTasksButton);
+
+        taskPanel.add(buttonPanel, BorderLayout.SOUTH);
 
         taskPanel.revalidate();
         taskPanel.repaint();
 
         addTaskButton.addActionListener(e -> {
-            String task = JOptionPane.showInputDialog("Введите задачу:");
-            if (task != null && !task.isEmpty()) {
-                taskArea.append(task + "\n");
+            String taskDescription = JOptionPane.showInputDialog("Введите задачу:");
+            if (taskDescription != null && !taskDescription.isEmpty()) {
+                LocalDate currentDate = LocalDate.now();
+                Task newTask = new Task(taskDescription, currentDate);
+                JCheckBox newTaskCheckbox = new JCheckBox(newTask.getDescription());
+                taskCheckboxMap.put(newTaskCheckbox, newTask);
+                taskListPanel.add(newTaskCheckbox);
+                taskListPanel.revalidate();
+                taskListPanel.repaint();
             }
         });
+
+        saveTaskButton.addActionListener(e -> {
+            List<Task> newTasks = new ArrayList<>();
+            for (JCheckBox taskCheckbox : taskCheckboxMap.keySet()) {
+                if (!taskCheckbox.isSelected()) {
+                    newTasks.add(taskCheckboxMap.get(taskCheckbox));
+                }
+            }
+            tasksMap.put(selectedDate, newTasks);
+            JOptionPane.showMessageDialog(this, "Задачи сохранены для " + selectedDate);
+        });
+
+        clearTasksButton.addActionListener(e -> {
+            taskListPanel.removeAll();
+            taskCheckboxMap.clear();
+            tasksMap.remove(selectedDate);
+            taskListPanel.revalidate();
+            taskListPanel.repaint();
+            JOptionPane.showMessageDialog(this, "Все задачи удалены для " + selectedDate);
+        });
+
+        showUpcomingTasksButton.addActionListener(e -> showTasks(new UpcomingTaskAbstractFactory()));
+        showOverdueTasksButton.addActionListener(e -> showTasks(new OverdueTaskAbstractFactory()));
+    }
+
+    private void showTasks(AbstractTaskFactory factory) {
+        LocalDate currentDate = LocalDate.now();
+        TaskFactory taskFactory = factory.createTaskFactory();
+        List<Task> tasks = taskFactory.getTasks(tasksMap, currentDate); // Возвращается список задач
+
+        String taskList = tasks.stream()
+                .map(Task::getDescription)
+                .reduce("", (acc, desc) -> acc + "\n" + desc);
+
+        JOptionPane.showMessageDialog(this, taskList.isEmpty() ? "Нет задач." : taskList,
+                "Список задач", JOptionPane.INFORMATION_MESSAGE);
     }
 
     private class DayButtonListener implements ActionListener {
