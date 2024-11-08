@@ -6,11 +6,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.time.LocalDate;
 import java.time.YearMonth;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Calendar;
+
+import org.example.singleton.TaskManager;
 import org.example.tasks.*;
 
 public class SecondWindow extends JFrame {
@@ -23,9 +23,6 @@ public class SecondWindow extends JFrame {
 
     private int currentYear;
     private int currentMonth;
-
-    // Map to store tasks by date
-    private Map<LocalDate, List<Task>> tasksMap = new HashMap<>();
 
     public SecondWindow() {
         setTitle("Календарь");
@@ -115,11 +112,11 @@ public class SecondWindow extends JFrame {
         JButton showUpcomingTasksButton = new JButton("Показать предстоящие задачи");
         JButton showOverdueTasksButton = new JButton("Показать просроченные задачи");
 
-        List<Task> tasks = tasksMap.getOrDefault(selectedDate, new ArrayList<>());
-        Map<JCheckBox, Task> taskCheckboxMap = new HashMap<>();
+        TaskManager taskManager = TaskManager.getInstance();
+
+        List<Task> tasks = taskManager.getTasks(selectedDate);
         for (Task task : tasks) {
             JCheckBox taskCheckbox = new JCheckBox(task.getDescription());
-            taskCheckboxMap.put(taskCheckbox, task);
             taskListPanel.add(taskCheckbox);
         }
 
@@ -146,31 +143,20 @@ public class SecondWindow extends JFrame {
         addTaskButton.addActionListener(e -> {
             String taskDescription = JOptionPane.showInputDialog("Введите задачу:");
             if (taskDescription != null && !taskDescription.isEmpty()) {
-                LocalDate currentDate = LocalDate.now();
-                Task newTask = new Task(taskDescription, currentDate);
+                Task newTask = new Task(taskDescription, selectedDate);
+                taskManager.addTask(newTask);
+
                 JCheckBox newTaskCheckbox = new JCheckBox(newTask.getDescription());
-                taskCheckboxMap.put(newTaskCheckbox, newTask);
                 taskListPanel.add(newTaskCheckbox);
+
                 taskListPanel.revalidate();
                 taskListPanel.repaint();
             }
         });
 
-        saveTaskButton.addActionListener(e -> {
-            List<Task> newTasks = new ArrayList<>();
-            for (JCheckBox taskCheckbox : taskCheckboxMap.keySet()) {
-                if (!taskCheckbox.isSelected()) {
-                    newTasks.add(taskCheckboxMap.get(taskCheckbox));
-                }
-            }
-            tasksMap.put(selectedDate, newTasks);
-            JOptionPane.showMessageDialog(this, "Задачи сохранены для " + selectedDate);
-        });
-
         clearTasksButton.addActionListener(e -> {
+            taskManager.removeTasks(selectedDate);
             taskListPanel.removeAll();
-            taskCheckboxMap.clear();
-            tasksMap.remove(selectedDate);
             taskListPanel.revalidate();
             taskListPanel.repaint();
             JOptionPane.showMessageDialog(this, "Все задачи удалены для " + selectedDate);
@@ -183,14 +169,21 @@ public class SecondWindow extends JFrame {
     private void showTasks(AbstractTaskFactory factory) {
         LocalDate currentDate = LocalDate.now();
         TaskFactory taskFactory = factory.createTaskFactory();
-        List<Task> tasks = taskFactory.getTasks(tasksMap, currentDate); // Возвращается список задач
 
-        String taskList = tasks.stream()
-                .map(Task::getDescription)
-                .reduce("", (acc, desc) -> acc + "\n" + desc);
+        TaskManager taskManager = TaskManager.getInstance();
+        Map<LocalDate, List<Task>> allTasks = taskManager.getAllTasksMap();
+        List<Task> tasks = taskFactory.getTasks(allTasks, currentDate);
 
-        JOptionPane.showMessageDialog(this, taskList.isEmpty() ? "Нет задач." : taskList,
-                "Список задач", JOptionPane.INFORMATION_MESSAGE);
+        JPanel taskListPanel = new JPanel();
+        taskListPanel.setLayout(new BoxLayout(taskListPanel, BoxLayout.Y_AXIS));
+        for (Task task : tasks) {
+            JCheckBox taskCheckbox = new JCheckBox(task.getDescription());
+            taskListPanel.add(taskCheckbox);
+        }
+
+        taskPanel.add(new JScrollPane(taskListPanel), BorderLayout.CENTER);
+        taskPanel.revalidate();
+        taskPanel.repaint();
     }
 
     private class DayButtonListener implements ActionListener {
