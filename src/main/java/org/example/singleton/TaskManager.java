@@ -1,5 +1,7 @@
 package org.example.singleton;
 
+import org.example.abstractfactory.*;
+import org.example.abstractfactory.TaskFilter;
 import org.example.tasks.Task;
 
 import java.time.LocalDate;
@@ -50,5 +52,14 @@ public class TaskManager {
     // Метод для получения всех задач
     public Map<LocalDate, List<Task>> getAllTasksMap() {
         return tasksMap;
+    }
+
+    // Метод для получения всех задач по фильтру
+    public List<Task> getTasksByFilter(TaskFilter filter) {
+        List<Task> allTasks = new ArrayList<>();
+        for (List<Task> tasks : tasksMap.values()) {
+            allTasks.addAll(tasks);
+        }
+        return filter.filter(allTasks);
     }
 }

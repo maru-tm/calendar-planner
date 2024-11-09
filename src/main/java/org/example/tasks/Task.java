@@ -1,15 +1,16 @@
 package org.example.tasks;
 
 import java.time.LocalDate;
+
 public class Task {
     private String description;
     private LocalDate dueDate;
-    private boolean completed; // Добавляем состояние выполнения
+    private boolean completed;
 
     public Task(String description, LocalDate dueDate) {
         this.description = description;
-        this.dueDate = dueDate != null ? dueDate : LocalDate.now();
-        this.completed = false; // по умолчанию задача не выполнена
+        this.dueDate = dueDate;
+        this.completed = false;
     }
 
     public String getDescription() {
@@ -28,12 +29,22 @@ public class Task {
         this.completed = completed;
     }
 
-    @Override
-    public String toString() {
-        return description + " (due: " + dueDate + ")";
+    public void setDescription(String description) {
+        this.description = description;
     }
 
-    public void setDescription(String newDescription) {
-        this.description = newDescription;
+    // Метод для проверки, просрочена ли задача
+    public boolean isOverdue() {
+        // Проверяем, что дата задачи раньше текущей и задача не завершена
+        return dueDate.isBefore(LocalDate.now()) && !completed;
+    }
+
+    public boolean isUpcoming() {
+        // Задача считается предстоящей, если она не просрочена и не завершена
+        return !isOverdue(); // или dueDate.isAfter(LocalDate.now()) || dueDate.isEqual(LocalDate.now())
+    }
+    @Override
+    public String toString() {
+        return description + " (Due: " + dueDate + ")";
     }
 }
