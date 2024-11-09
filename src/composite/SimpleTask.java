@@ -1,36 +1,30 @@
 package composite;
 
-public class SimpleTask implements TaskComponent {
-    private final String description;
-    private boolean completed;
+import java.util.List;
 
-    public SimpleTask(String description) {
-        this.description = description;
-        this.completed = false;
+public class SimpleTask extends TaskComponent {
+
+    public SimpleTask(String name) {
+        super(name);
     }
 
     @Override
-    public void addTask(TaskComponent task) {
-        throw new UnsupportedOperationException("Simple tasks cannot contain other tasks.");
+    public void display() {
+        System.out.println(getName() + (isCompleted() ? " [Выполнено]" : " [Не выполнено]"));
     }
 
     @Override
-    public void removeTask(TaskComponent task) {
-        throw new UnsupportedOperationException("Simple tasks cannot contain other tasks.");
+    public void add(TaskComponent task) {
+        throw new UnsupportedOperationException("SimpleTask не может иметь подзадач.");
     }
 
     @Override
-    public void markCompleted() {
-        this.completed = true;
+    public void remove(TaskComponent task) {
+        throw new UnsupportedOperationException("SimpleTask не может иметь подзадач.");
     }
 
     @Override
-    public boolean isCompleted() {
-        return completed;
-    }
-
-    @Override
-    public String getDescription() {
-        return description;
+    public List<TaskComponent> getSubTasks() {
+        throw new UnsupportedOperationException("SimpleTask не может иметь подзадач.");
     }
 }

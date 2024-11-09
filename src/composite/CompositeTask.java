@@ -3,40 +3,34 @@ package composite;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CompositeTask implements TaskComponent {
-    private final String description;
-    private final List<TaskComponent> subtasks = new ArrayList<>();
+public class CompositeTask extends TaskComponent {
+    private List<TaskComponent> subTasks;
 
-    public CompositeTask(String description) {
-        this.description = description;
+    public CompositeTask(String name) {
+        super(name);
+        this.subTasks = new ArrayList<>();
     }
 
     @Override
-    public void addTask(TaskComponent task) {
-        subtasks.add(task);
+    public void add(TaskComponent task) {
+        subTasks.add(task);
     }
 
     @Override
-    public void removeTask(TaskComponent task) {
-        subtasks.remove(task);
+    public void remove(TaskComponent task) {
+        subTasks.remove(task);
     }
 
     @Override
-    public void markCompleted() {
-        subtasks.forEach(TaskComponent::markCompleted);
+    public List<TaskComponent> getSubTasks() {
+        return subTasks;
     }
 
     @Override
-    public boolean isCompleted() {
-        return subtasks.stream().allMatch(TaskComponent::isCompleted);
-    }
-
-    @Override
-    public String getDescription() {
-        return description;
-    }
-
-    public List<TaskComponent> getSubtasks() {
-        return subtasks;
+    public void display() {
+        System.out.println(getName() + (isCompleted() ? " [Выполнено]" : " [Не выполнено]"));
+        for (TaskComponent subTask : subTasks) {
+            subTask.display();
+        }
     }
 }

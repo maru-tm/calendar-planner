@@ -1,13 +1,22 @@
 package flyweight;
 
-import java.util.HashMap;
-import java.util.Map;
+import composite.TaskComponent;
+import composite.CompositeTask;
+import composite.SimpleTask;
 
 public class TaskFlyweightFactory {
-    private static final Map<String, TaskFlyweight> taskFlyweights = new HashMap<>();
+    private static TaskComponent cleaningTask;
 
-    public static TaskFlyweight getFlyweight(String description) {
-        taskFlyweights.putIfAbsent(description, new TaskFlyweight(description));
-        return taskFlyweights.get(description);
+    public static TaskComponent getCleaningTask() {
+        if (cleaningTask == null) {
+            // Создание задачи уборки, которая будет повторяться каждую субботу
+            cleaningTask = new CompositeTask("Уборка");
+
+            // Добавляем подзадачи
+            cleaningTask.add(new SimpleTask("Помыть полы"));
+            cleaningTask.add(new SimpleTask("Вынести мусор"));
+            cleaningTask.add(new SimpleTask("Протереть пыль"));
+        }
+        return cleaningTask;
     }
 }
