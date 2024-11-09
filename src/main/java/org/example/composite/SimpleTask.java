@@ -1,36 +1,28 @@
 package org.example.composite;
 
 public class SimpleTask implements TaskComponent {
-    private final String description;
-    private boolean completed;
+    private String taskName;
 
-    public SimpleTask(String description) {
-        this.description = description;
-        this.completed = false;
+    // Constructor to initialize the task name
+    public SimpleTask(String taskName) {
+        this.taskName = taskName;
     }
 
+    // Method to display the task name
+    @Override
+    public void showTask() {
+        System.out.println("Task: " + taskName);
+    }
+
+    // Cannot add sub-tasks to a simple task, throws exception
     @Override
     public void addTask(TaskComponent task) {
-        throw new UnsupportedOperationException("Simple tasks cannot contain other tasks.");
+        throw new UnsupportedOperationException("Cannot add task to a simple task.");
     }
 
+    // Cannot remove sub-tasks from a simple task, throws exception
     @Override
     public void removeTask(TaskComponent task) {
-        throw new UnsupportedOperationException("Simple tasks cannot contain other tasks.");
-    }
-
-    @Override
-    public void markCompleted() {
-        this.completed = true;
-    }
-
-    @Override
-    public boolean isCompleted() {
-        return completed;
-    }
-
-    @Override
-    public String getDescription() {
-        return description;
+        throw new UnsupportedOperationException("Cannot remove task from a simple task.");
     }
 }

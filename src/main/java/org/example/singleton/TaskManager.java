@@ -2,6 +2,8 @@ package org.example.singleton;
 
 import org.example.abstractfactory.*;
 import org.example.abstractfactory.TaskFilter;
+import org.example.strategy.DateSortStrategy;
+import org.example.strategy.TaskSortStrategy;
 import org.example.tasks.Task;
 
 import java.time.LocalDate;
@@ -9,18 +11,18 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 public class TaskManager {
 
     private static TaskManager instance;
-    private Map<LocalDate, List<Task>> tasksMap;
+    private Map<LocalDate, List<Task>> tasksMap; // Map to store tasks by due date
+    private TaskSortStrategy sortStrategy; // Strategy for sorting tasks
 
-    // Приватный конструктор для синглтона
-    private TaskManager() {
+    // Private constructor for singleton pattern
+    public TaskManager() {
         tasksMap = new HashMap<>();
     }
 
-    // Метод для получения единственного экземпляра TaskManager
+    // Singleton pattern: ensures only one instance of TaskManager exists
     public static TaskManager getInstance() {
         if (instance == null) {
             synchronized (TaskManager.class) {
@@ -32,34 +34,52 @@ public class TaskManager {
         return instance;
     }
 
-    // Метод для добавления задачи на определенную дату
+    // Adds a task to the tasks map for a given date
     public void addTask(Task task) {
         LocalDate taskDate = task.getDueDate();
         tasksMap.putIfAbsent(taskDate, new ArrayList<>());
         tasksMap.get(taskDate).add(task);
+        this.sortStrategy = new DateSortStrategy(); // Default sort strategy is by date
     }
 
-    // Метод для получения задач на определенную дату
+    // Returns tasks for a specific date
     public List<Task> getTasks(LocalDate date) {
         return tasksMap.getOrDefault(date, new ArrayList<>());
     }
 
-    // Метод для удаления всех задач на определенную дату
+    // Removes all tasks for a specific date
     public void removeTasks(LocalDate date) {
         tasksMap.remove(date);
     }
 
-    // Метод для получения всех задач
+    // Returns all tasks in the map
     public Map<LocalDate, List<Task>> getAllTasksMap() {
         return tasksMap;
     }
 
-    // Метод для получения всех задач по фильтру
+    // Filters tasks based on the given filter
     public List<Task> getTasksByFilter(TaskFilter filter) {
         List<Task> allTasks = new ArrayList<>();
+        // Diagnostic output: printing tasks map content
+        System.out.println("Tasks map content: " + tasksMap);
+
         for (List<Task> tasks : tasksMap.values()) {
             allTasks.addAll(tasks);
         }
+        // Diagnostic output: printing all tasks before filtering
+        System.out.println("All tasks before filtering: " + allTasks);
+
         return filter.filter(allTasks);
+    }
+
+    // Sets the task sorting strategy
+    public void setSortStrategy(TaskSortStrategy sortStrategy) {
+        this.sortStrategy = sortStrategy;
+    }
+
+    // Sorts the provided tasks list using the current sorting strategy
+    public List<Task> getSortedTasks(List<Task> tasks) {
+        sortStrategy.sort(tasks); // Apply sorting
+        return tasks;
     }
 }

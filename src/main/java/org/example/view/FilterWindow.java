@@ -1,57 +1,71 @@
 package org.example.view;
 
-import org.example.abstractfactory.OverdueTaskFilter;
-import org.example.abstractfactory.UpcomingTaskFilter;
-import org.example.abstractfactory.TaskFilter;
+import org.example.singleton.*;
+import org.example.strategy.DateSortStrategy;
+import org.example.strategy.DescriptionSortStrategy;
 import org.example.tasks.Task;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.List;
 
 public class FilterWindow extends JFrame {
-    private List<Task> tasks;
 
+    private JPanel taskPanel;
+    private TaskManager taskManager;
+
+    // Constructor
     public FilterWindow(List<Task> tasks) {
-        this.tasks = tasks;
-
-        setTitle("Фильтры задач");
-        setSize(300, 150);
-        setLocationRelativeTo(null);
+        this.taskManager = new TaskManager();
+        setTitle("Фильтр задач");
+        setSize(400, 300);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        setLayout(new BorderLayout());
 
-        JPanel panel = new JPanel();
-        panel.setLayout(new GridLayout(3, 1));
+        // Panel for buttons
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.setLayout(new FlowLayout());
 
-        JButton overdueButton = new JButton("Показать просроченные задачи");
-        overdueButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                showFilteredTasks(new OverdueTaskFilter());
-            }
+        // Button for sorting tasks by date
+        JButton dateSortButton = new JButton("Сортировать по дате");
+        dateSortButton.addActionListener(e -> {
+            taskManager.setSortStrategy(new DateSortStrategy()); // Set the sorting strategy to DateSortStrategy
+            List<Task> sortedTasks = taskManager.getSortedTasks(tasks); // Get sorted tasks
+            updateTaskPanel(sortedTasks);
         });
+        buttonPanel.add(dateSortButton);
 
-        JButton upcomingButton = new JButton("Показать предстоящие задачи");
-        upcomingButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                showFilteredTasks(new UpcomingTaskFilter());
-            }
+        // Button for sorting tasks by description
+        JButton descriptionSortButton = new JButton("Сортировать по задаче");
+        descriptionSortButton.addActionListener(e -> {
+            taskManager.setSortStrategy(new DescriptionSortStrategy());
+            List<Task> sortedTasks = taskManager.getSortedTasks(tasks);
+            updateTaskPanel(sortedTasks); // Обновляем панель
         });
+        buttonPanel.add(descriptionSortButton);
 
-        panel.add(overdueButton);
-        panel.add(upcomingButton);
-        add(panel);
+        // Panel to display tasks
+        taskPanel = new JPanel();
+        taskPanel.setLayout(new BoxLayout(taskPanel, BoxLayout.Y_AXIS));
+
+        // Initial display of tasks
+        updateTaskPanel(tasks);
+
+        // Add the panels to the window
+        add(buttonPanel, BorderLayout.NORTH);
+        add(new JScrollPane(taskPanel), BorderLayout.CENTER);
     }
 
-    private void showFilteredTasks(TaskFilter filter) {
-        System.out.println("Все задачи перед фильтрацией: " + tasks);
-        List<Task> filteredTasks = filter.filter(tasks);
-
-        String filteredText = filteredTasks.isEmpty() ? "Нет задач, соответствующих фильтру." : filteredTasks.toString();
-        JOptionPane.showMessageDialog(this, filteredText);
+    // Method to update the task panel with new tasks
+    private void updateTaskPanel(List<Task> tasks) {
+        taskPanel.removeAll();
+        for (Task task : tasks) {
+            // Create a string for each task displaying due date and description
+            String taskDescription = task.getDueDate().toString() + "\n" + task.getDescription();
+            JCheckBox taskCheckBox = new JCheckBox(taskDescription);
+            taskPanel.add(taskCheckBox);
+        }
+        taskPanel.revalidate();
+        taskPanel.repaint();
     }
-
 }

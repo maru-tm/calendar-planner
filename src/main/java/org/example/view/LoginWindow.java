@@ -10,6 +10,7 @@ public class LoginWindow extends JFrame {
     private JPasswordField passwordField;
     private LoginController loginController;
 
+    // Constructor to set up the login window
     public LoginWindow() {
         setTitle("Login");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -19,26 +20,31 @@ public class LoginWindow extends JFrame {
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.insets = new Insets(10, 10, 10, 10);
 
+        // Label for the login field
         JLabel loginLabel = new JLabel("Логин:");
         gbc.gridx = 0;
         gbc.gridy = 0;
         add(loginLabel, gbc);
 
+        // Text field for entering login
         loginField = new JTextField(15);
         gbc.gridx = 1;
         gbc.gridy = 0;
         add(loginField, gbc);
 
+        // Label for the password field
         JLabel passwordLabel = new JLabel("Пароль:");
         gbc.gridx = 0;
         gbc.gridy = 1;
         add(passwordLabel, gbc);
 
+        // Password field for entering password
         passwordField = new JPasswordField(15);
         gbc.gridx = 1;
         gbc.gridy = 1;
         add(passwordField, gbc);
 
+        // Button for login action
         JButton loginButton = new JButton("Войти");
         gbc.gridx = 0;
         gbc.gridy = 2;
@@ -56,18 +62,19 @@ public class LoginWindow extends JFrame {
         setVisible(true);
     }
 
+    // Method to set the LoginController
     public void setLoginController(LoginController loginController) {
         this.loginController = loginController;
     }
 
-    // Показ успешного входа и открытие SecondWindow
+    // Method to display success message and open the SecondWindow
     public void showSuccess() {
         JOptionPane.showMessageDialog(this, "Успешный вход!");
         new SecondWindow();
         dispose(); // Закрываем окно входа
     }
 
-    // Показ ошибки при неверных данных
+    // Method to display error message for invalid login or password
     public void showError() {
         JOptionPane.showMessageDialog(this, "Неверный логин или пароль. Попробуйте снова.");
     }
