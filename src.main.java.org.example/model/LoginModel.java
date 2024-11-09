@@ -1,4 +1,4 @@
-package org.example.model;
+package src.main.java.org.example.model;
 
 public class LoginModel {
     // Метод для проверки логина и пароля

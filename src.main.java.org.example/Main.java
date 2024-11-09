@@ -1,8 +1,8 @@
-package org.example;
+package src.main.java.org.example;
 
-import org.example.Controller.LoginController;
-import org.example.View.LoginWindow;
-import org.example.model.LoginModel;
+import src.main.java.org.example.controller.LoginController;
+import src.main.java.org.example.view.LoginWindow;
+import src.main.java.org.example.model.LoginModel;
 
 public class Main {
     public static void main(String[] args) {

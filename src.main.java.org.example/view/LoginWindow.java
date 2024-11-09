@@ -1,6 +1,6 @@
-package org.example.View;
+package src.main.java.org.example.view;
 
-import org.example.Controller.LoginController;
+import src.main.java.org.example.controller.LoginController;
 
 import javax.swing.*;
 import java.awt.*;

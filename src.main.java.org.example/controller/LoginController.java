@@ -1,8 +1,8 @@
-package org.example.Controller;
+package src.main.java.org.example.controller;
 
-import org.example.View.LoginWindow;
-import org.example.View.SecondWindow;
-import org.example.model.LoginModel;
+import src.main.java.org.example.view.LoginWindow;
+import src.main.java.org.example.view.SecondWindow;
+import src.main.java.org.example.model.LoginModel;
 
 public class LoginController {
     private LoginModel model;
